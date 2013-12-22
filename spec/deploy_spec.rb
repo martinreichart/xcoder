@@ -1,6 +1,7 @@
 require_relative 'spec_helper'
 require 'ostruct'
 require 'xcode/deploy/testflight'
+require 'xcode/deploy/hockeyapp'
 require 'xcode/deploy/web_assets'
 require 'xcode/deploy/ftp'
 require 'xcode/deploy/ssh'
@@ -56,6 +57,31 @@ describe Xcode::Deploy do
       end
 
       testflight.deploy
+      # response['response'].should == 'ok'
+    end
+  end
+  
+  describe Xcode::Deploy::Hockeyapp do
+
+    let(:hockeyapp) do 
+      Xcode::Deploy::Hockeyapp.new(builder, {:api_token => 'api token', :app_id => 'app id' }) 
+    end
+    
+    it "should be configured with api and team token" do
+      hockeyapp.api_token.should == 'api token'
+      hockeyapp.app_id.should == 'app id'
+    end
+    
+    it "should call curl with correct bulld paths" do
+      PTY.stub(:spawn).with do |cmd, &block|
+        cmd.should =~/^curl/
+        cmd.should =~/-F file=@"ipa path"/
+        cmd.should =~/-F dsym=@"dsym path"/
+        cmd.should =~/-F api_token='api token'/
+        cmd.should =~/-F app_id='app id'/                
+      end
+
+      hockeyapp.deploy
       # response['response'].should == 'ok'
     end
   end

@@ -84,6 +84,28 @@ describe Xcode::Builder do
         testflight.notes.should=="some notes"
       end
     end
+    
+    describe "#hockeyapp" do
+
+      it "should upload ipa and dsym to hockeyapp" do
+        subject.build.package
+        hockeyapp = nil
+        result = subject.deploy(:hockeyapp, 
+          :api_token => "api_token",
+          :app_id => "app_id",
+          # :proxy => "http://proxyhost:8080",
+          :notes => "some notes" do |ha|  
+            hockeyapp = ha       
+            ha.should_receive(:deploy).and_return('result')
+        end      
+        result.should == 'result'
+        hockeyapp.should_not==nil
+        hockeyapp.api_token.should=="api_token"
+        hockeyapp.app_id.should=="app_id"
+        hockeyapp.builder.should==subject
+        hockeyapp.notes.should=="some notes"
+      end
+    end
 
     describe "#test" do
 
