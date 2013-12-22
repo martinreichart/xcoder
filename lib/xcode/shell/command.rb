@@ -16,7 +16,7 @@ module Xcode
 
     class Command
       include Xcode::TerminalOutput
-      attr_accessor :env, :cmd, :args, :show_output, :output_dir, :log_to_file, :output
+      attr_accessor :env, :cmd, :args, :show_output, :output_dir, :log_to_file, :output, :command_pipe
 
       def initialize(cmd, environment={})
         @cmd = cmd.to_s
@@ -24,6 +24,7 @@ module Xcode
         @env = environment
         @show_output = true
         @pipe = nil
+        @command_pipe = nil
         @output = []
         @output_dir = Dir.tmpdir
         @log_to_file = false
@@ -42,6 +43,11 @@ module Xcode
         out << @cmd
         out+=@args
         out+=(@env.map {|k,v| "#{k}=#{v}"})
+
+        unless @command_pipe.nil?
+          out << "| #{@command_pipe}"
+        end
+        
         out
       end
       

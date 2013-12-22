@@ -143,6 +143,8 @@ module Xcode
         print_task :builder, "Building #{product_name}", :notice
         cmd = prepare_build_command options[:sdk]||@sdk
 
+        cmd.command_pipe = options[:pipe]
+        
         with_keychain do
           cmd.execute
         end
